@@ -26,6 +26,10 @@ def build_balrog_df(balrog_file,
     return balrog_data
 
 
+def build_spec_df_hsc(z_file, deep_data):
+    spec_z = pd.read_hdf(z_file)
+    return spec_z
+
 def build_spec_df(cosmos_file, deep_data):
     cosmos_z = pd.read_hdf(cosmos_file)
     cosmos = deep_data[deep_data['FIELD'] == 'COSMOS'].copy()
@@ -66,6 +70,54 @@ def build_spec_df(cosmos_file, deep_data):
 
     return cosmos
 
+def build_wide_df_hsc(wide_field_file, wide_data_assignment_df):
+    with h5py.File(wide_field_file, 'r') as f:  # this is the master catalog
+        # Wide Data
+        try:
+            wide_data_assignment_df['coadd_object_id'] = np.array(f['/mdet/noshear/uid'][:])  # [select_metacal]
+            print("read coadd_object_id done")
+
+            wide_data_assignment_df['unsheared/flux_g'] = np.array(
+                f['/mdet/noshear/pgauss_band_flux_g'][:])  # [select_metacal]
+            wide_data_assignment_df['unsheared/flux_i'] = np.array(
+                f['/mdet/noshear/pgauss_band_flux_i'][:])  # [select_metacal]
+            wide_data_assignment_df['unsheared/flux_r'] = np.array(
+                f['/mdet/noshear/pgauss_band_flux_r'][:])  # [select_metacal]
+            wide_data_assignment_df['unsheared/flux_z'] = np.array(
+                f['/mdet/noshear/pgauss_band_flux_z'][:])  # [select_metacal]
+            print("read unsheared/fluxes done")
+
+            wide_data_assignment_df["unsheared/snr"] = np.array(f['/mdet/noshear/gauss_s2n'][:])
+            print("read unsheared/snr done")
+            wide_data_assignment_df["unsheared/size_ratio"] = np.array(f['/mdet/noshear/gauss_T_ratio'][:])
+            print("read unsheared/T done")
+
+            gauss_g_cov_1_1 = np.array(f['/mdet/noshear/gauss_g_cov_1_1'][:])
+            gauss_g_cov_2_2 = np.array(f['/mdet/noshear/gauss_g_cov_2_2'][:])
+            weights = np.ones(len(wide_data_assignment_df)) #1 / (0.17 ** 2 + 0.5 * (gauss_g_cov_1_1 + gauss_g_cov_2_2))
+
+            wide_data_assignment_df['unsheared/weight'] = weights
+            print("read unsheared/weight done")
+
+        except:
+            select_metacal = f['index']['select']
+            print("read select metacal done")
+
+            wide_data_assignment_df['coadd_object_id'] = np.array(f['catalog/metacal/unsheared/coadd_object_id'][:])[
+                select_metacal]
+            print("read coadd_object_id done")
+
+            wide_data_assignment_df['unsheared/T'] = np.array(f['catalog/metacal/unsheared/T'][:])[select_metacal]
+            print("read unsheared/T done")
+
+            wide_data_assignment_df['unsheared/snr'] = np.array(f['catalog/metacal/unsheared/snr'][:])[select_metacal]
+            print("read unsheared/snr done")
+
+            wide_data_assignment_df['unsheared/weight'] = np.array(f['catalog/metacal/unsheared/weight'][:])[
+                select_metacal]
+            print("read unsheared/weight done")
+
+    return wide_data_assignment_df
 
 def build_wide_df(wide_field_file, wide_data_assignment_df):
     with h5py.File(wide_field_file, 'r') as f:  # this is the master catalog
@@ -129,15 +181,16 @@ def build_wide_df(wide_field_file, wide_data_assignment_df):
     return wide_data_assignment_df
 
 
-def bin_assignment_spec(spec_data, deep_som_size, wide_som_size, bin_edges):
+def bin_assignment_spec(spec_data, deep_som_size, wide_som_size, bin_edges,
+                        key='Z', cell_wide_key='cell_wide_unsheared'):
     # assign gals in redshift sample to bins
-    spec_data['tomo_bin'] = pd.cut(spec_data['Z'], bin_edges, labels=[0, 1, 2, 3])
+    spec_data['tomo_bin'] = pd.cut(spec_data[key], bin_edges, labels=[0, 1, 2, 3])
 
-    ncells_with_spec_data = len(np.unique(spec_data['cell_wide_unsheared'].values))
+    ncells_with_spec_data = len(np.unique(spec_data[cell_wide_key].values))
     cell_bin_assignment = np.ones(wide_som_size, dtype=int) * -1
-    cells_with_spec_data = np.unique(spec_data['cell_wide_unsheared'].values)
+    cells_with_spec_data = np.unique(spec_data[cell_wide_key].values)
 
-    groupby_obj_value_counts = spec_data.groupby('cell_wide_unsheared')['tomo_bin'].value_counts()
+    groupby_obj_value_counts = spec_data.groupby(cell_wide_key)['tomo_bin'].value_counts()
 
     for c in cells_with_spec_data:
         bin_assignment = groupby_obj_value_counts.loc[c].index[0]

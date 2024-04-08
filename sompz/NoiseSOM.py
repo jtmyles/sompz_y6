@@ -95,6 +95,7 @@ class NoiseSOM:
             maxF = np.max(data, axis=0)
 
         nCells = np.product(shape)
+        self.nCells = nCells
         if initialize == 'uniform':
             # Populate weights with random numbers
             self.weights = np.random.rand(nCells, self.N)
@@ -201,7 +202,7 @@ class NoiseSOM:
         bmu = np.zeros(nPts, dtype=int)
         dsq = np.zeros(nPts, dtype=float)
         for first in range(0, nPts, blocksize):
-            if first % 10 == 0:
+            if first % 1000 == 0:
                 print("classifying", first)
             last = min(first + blocksize, nPts)
             d = self.metric(self.weights, data[first:last], errors[first:last])

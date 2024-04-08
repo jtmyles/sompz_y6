@@ -5,6 +5,7 @@ import numpy as np
 import yaml
 from sompz import NoiseSOM as ns
 
+import fitsio
 if len(sys.argv) == 1:
     cfgfile = 'y6_sompz.cfg'
 else:
@@ -23,7 +24,10 @@ bands_err_label = cfg['deep_bands_err_label']
 
 os.system(f'mkdir -p {output_path}/')
 # Load data
-deep_balrog_data = pickle.load(open(deep_balrog_file, 'rb'), encoding='latin1')
+try:
+    deep_balrog_data = pickle.load(open(deep_balrog_file, 'rb'), encoding='latin1')
+except:
+    deep_balrog_data = fitsio.read(deep_balrog_file)
 
 # Create flux and flux_err vectors
 len_deep = len(deep_balrog_data[bands_label + bands[0]])
@@ -53,5 +57,7 @@ som = ns.NoiseSOM(metric, fluxes_d[indices, :], fluxerrs_d[indices, :],
                   initialize='sample',
                   minError=0.02)
 
+print(som.weights)
+print(output_path)
 # And save the resultant weight matrix
 np.save(f'{output_path}/som_deep_{som_dim}_{som_dim}.npy', som.weights)

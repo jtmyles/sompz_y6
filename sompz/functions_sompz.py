@@ -303,6 +303,7 @@ def redshift_distributions_wide(data,
                                 pcchat,
                                 tomo_bins={},
                                 key='Z',
+                                deep_som_size=64**2,
                                 force_assignment=True,
                                 interpolate_kwargs={}, **kwargs):
     """Returns redshift distribution for sample
@@ -359,6 +360,7 @@ def redshift_distributions_wide(data,
                 hist = histogram(data, deep_data, key=key, cells=cells[cells_conds],
                                  cell_weights=cell_weights[cells_conds] * cells_binweights, pcchat=pcchat,
                                  overlap_weighted_pzc=overlap_weighted_pzc, bins=bins,
+                                 deep_som_size=deep_som_size,
                                  interpolate_kwargs=interpolate_kwargs)
             hists.append(hist)
         hists = np.array(hists)
