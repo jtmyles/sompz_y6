@@ -1,3 +1,4 @@
+import pdb
 import os
 import pickle
 import sys
@@ -15,6 +16,7 @@ with open(cfgfile, 'r') as fp:
     cfg = yaml.safe_load(fp)
 
 # Read variables from config file
+debug = cfg['debug']
 output_path = cfg['out_dir']
 som_dim = cfg['deep_som_dim']
 deep_balrog_file = cfg['deep_balrog_file']
@@ -23,12 +25,25 @@ bands_label = cfg['deep_bands_label']
 bands_err_label = cfg['deep_bands_err_label']
 
 os.system(f'mkdir -p {output_path}/')
+outfile = f'{output_path}/som_deep_{som_dim}_{som_dim}.npy'
+if os.path.exists(outfile):
+    print('Already done.')
+    sys.exit()
+    assert False
+    
 # Load data
-try:
-    deep_balrog_data = pickle.load(open(deep_balrog_file, 'rb'), encoding='latin1')
-except:
-    deep_balrog_data = fitsio.read(deep_balrog_file)
+#try:
+deep_balrog_data = pickle.load(open(deep_balrog_file, 'rb'), encoding='latin1')
+#except:
+#    deep_balrog_data = fitsio.read(deep_balrog_file)
 
+if debug:
+    nsamp = 25000
+    np.random.seed(2024)
+    subsample = np.random.choice(range(len(deep_balrog_data)), nsamp, replace=False)
+    #pdb.set_trace()
+    deep_balrog_data = deep_balrog_data.iloc[subsample]
+    
 # Create flux and flux_err vectors
 len_deep = len(deep_balrog_data[bands_label + bands[0]])
 fluxes_d = np.zeros((len_deep, len(bands)))
@@ -60,4 +75,4 @@ som = ns.NoiseSOM(metric, fluxes_d[indices, :], fluxerrs_d[indices, :],
 print(som.weights)
 print(output_path)
 # And save the resultant weight matrix
-np.save(f'{output_path}/som_deep_{som_dim}_{som_dim}.npy', som.weights)
+np.save(outfile, som.weights)
