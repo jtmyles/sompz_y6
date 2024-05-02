@@ -6,7 +6,7 @@ import pickle
 import numpy as np
 
 nproc_balrog_data = 1
-nproc_wide_data = 4 # number of mpi processes/cores used to run assign script
+nproc_wide_data = 8 # number of mpi processes/cores used to run assign script
 nsubsets = 10 # should match variable in assign script
 
 if len(sys.argv) == 1:
@@ -39,7 +39,8 @@ def join_cell_assign_files(path_cats, som_type, shear, run_name, nproc):
                     'cells']
             cells.append(cells_subsample)
     cells = np.concatenate(cells)
-
+    ncells = len(cells)
+    print(f'{ncells} cells')
     with open(f"{path_cats}/cells_{som_type}_{shear}_{run_name}.pkl", "wb") as output_file:
         pickle.dump(cells, output_file)
 

@@ -383,6 +383,7 @@ class AsinhMetric:
 
         # h: see Eqn A6 of Sanchez+2020. Appears as (1+nu_{ib}^2)
         h = np.hypot(1, vf)
+        # iterate over chunks of cells
         for first in range(0, vn.shape[0], chunk):
             last = min(first + chunk, vn.shape[0])
             # vnS is the re-scaled S/N of the cells, shape=(nS,nCells,nTargets,nFeatures)

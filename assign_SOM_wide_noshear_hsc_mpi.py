@@ -21,6 +21,8 @@ with open(cfgfile, 'r') as fp:
 
 som_type = 'wide'
 # Read variables from config file
+debug = cfg['debug']
+nTrain = cfg['nTrain']
 output_path = cfg['out_dir']
 som_wide = cfg['som_wide']
 som_dim = cfg['wide_som_dim']
@@ -44,13 +46,20 @@ if rank == 0:
 
         for i, band in enumerate(bands):
             print(i, band)
+            if debug:
+                # make slice with 100 random elements
+                select = np.random.choice(len(f[f'/catalog/{shear}/flux_{band}']), 
+                                          size=nTrain, replace=False)
+            else:
+                select = ...
+
             fluxes[band] = np.array_split(
-                f[f'/catalog/{shear}/flux_{band}'][...],
+                f[f'/catalog/{shear}/flux_{band}'][select],
                 nprocs
             )
 
             flux_errors[band] = np.array_split(
-                f[f'/catalog/{shear}/flux_err_{band}'][...],
+                f[f'/catalog/{shear}/flux_err_{band}'][select],
                 nprocs
             )
 
@@ -85,7 +94,7 @@ som = ns.NoiseSOM(metric, None, None,
                   initialize=som_weights,
                   minError=0.02)
 
-nsubsets = 10
+nsubsets = 8
 
 inds = np.array_split(np.arange(len(fluxes_d)), nsubsets)
 

@@ -79,7 +79,7 @@ som = ns.NoiseSOM(metric, None, None,
                   initialize=som_weights,
                   minError=0.02)
 
-nsubsets = 10
+nsubsets = 8
 
 inds = np.array_split(np.arange(len(fluxes_d)), nsubsets)
 
@@ -93,7 +93,7 @@ def assign_som(ind):
         cells_test, _ = som.classify(fluxes_d[inds[ind]], fluxerrs_d[inds[ind]])
         np.savez(filename, cells=cells_test)
     else:
-        print('File already exists')
+        print(f'File {filename} already exists')
 
 
 for index in range(nsubsets):

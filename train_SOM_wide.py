@@ -70,7 +70,7 @@ hh = ns.hFunc(nTrain, sigma=(30, 1))
 metric = ns.AsinhMetric(lnScaleSigma=0.4, lnScaleStep=0.03, debug=debug)
 
 print(f'Training SOM with {nTrain} objects')
-if debug: pdb.set_trace()
+#if debug: pdb.set_trace()
 # Now training the SOM
 som = ns.NoiseSOM(metric, fluxes_d[indices, :], fluxerrs_d[indices, :],
                   learning=hh,

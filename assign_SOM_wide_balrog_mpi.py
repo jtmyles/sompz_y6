@@ -81,7 +81,7 @@ som = ns.NoiseSOM(metric, None, None,
                   initialize=som_weights,
                   minError=0.02)
 
-nsubsets = 10
+nsubsets = 8
 
 inds = np.array_split(np.arange(len(fluxes_d)), nsubsets)
 
