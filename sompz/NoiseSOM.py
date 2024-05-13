@@ -114,6 +114,9 @@ class NoiseSOM:
                 self.weights = np.maximum(data[indices, :], errors[indices, :])
             else:
                 self.weights = data[indices, :]
+                
+            # Allow no NaNs
+            self.weights = np.nan_to_num(self.weights)
         elif isinstance(initialize, np.ndarray):
             # Initialize with given array
             if initialize.shape == tuple(self.shape) + (self.N,):

@@ -22,7 +22,7 @@ with open(cfgfile, 'r') as fp:
 som_type = 'wide'
 # Read variables from config file
 debug = cfg['debug']
-nTrain = cfg['nTrain']
+nTrain = cfg['nwide_train']
 output_path = cfg['out_dir']
 som_wide = cfg['som_wide']
 som_dim = cfg['wide_som_dim']
@@ -37,7 +37,9 @@ shear = 'noshear'
 path_out = os.path.join(output_path, f'{som_type}_{shear}')
 if not os.path.exists(path_out):
     os.system(f'mkdir -p {path_out}')
-som_wide = f'som_wide_{som_dim}_{som_dim}_1e7.npy'
+#suffix = int(np.log10(nTrain))
+train_suffix = f'{nTrain:.0e}'.replace('+0','')
+som_wide = f'som_wide_{som_dim}_{som_dim}_{train_suffix}.npy'
 
 if rank == 0:
     with h5py.File(catname, 'r') as f:
@@ -46,13 +48,16 @@ if rank == 0:
 
         for i, band in enumerate(bands):
             print(i, band)
+            '''
             if debug:
                 # make slice with 100 random elements
                 select = np.random.choice(len(f[f'/catalog/{shear}/flux_{band}']), 
                                           size=nTrain, replace=False)
             else:
                 select = ...
-
+            '''
+            select = ...
+            
             fluxes[band] = np.array_split(
                 f[f'/catalog/{shear}/flux_{band}'][select],
                 nprocs
@@ -102,7 +107,7 @@ inds = np.array_split(np.arange(len(fluxes_d)), nsubsets)
 # This function checks whether you have already run that subset, and if not it runs the SOM classifier
 def assign_som(ind):
     print(f'Running rank {rank}, index {ind}')
-    filename = f'{path_out}/som_wide_{som_dim}_{som_dim}_1e7_{run_name}_assign_{shear}_{rank}_subsample_{ind}.npz'
+    filename = f'{path_out}/som_wide_{som_dim}_{som_dim}_1e{suffix}_{run_name}_assign_{shear}_{rank}_subsample_{ind}.npz'
     if not os.path.exists(filename):
         print(f'Running to make {filename}')
         cells_test, _ = som.classify(fluxes_d[inds[ind]], fluxerrs_d[inds[ind]])

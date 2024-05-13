@@ -28,8 +28,8 @@ no_shear = cfg['shear_types'][0]
 nTrain = cfg['nwide_train'] if not debug else 200000
 
 os.system(f'mkdir -p {output_path}/')
-suffix = int(np.log10(nTrain))
-outfile = f'{output_path}/som_wide_{som_dim}_{som_dim}_1e{suffix}.npy'
+train_suffix = f'{nTrain:.0e}'.replace('+0','')
+outfile = f'{output_path}/som_wide_{som_dim}_{som_dim}_{train_suffix}.npy'
 
 if os.path.exists(outfile):
     print('Already done.')

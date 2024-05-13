@@ -67,8 +67,9 @@ for i, band in enumerate(bands):
     fluxes_d[:, i] = fluxes[band]
     fluxerrs_d[:, i] = flux_errors[band]
 
-# Train the SOM with this set (takes a few hours on laptop!)
 nTrain = fluxes_d.shape[0]
+tmp = cfg['nwide_train']
+train_suffix = f'{tmp:.0e}'.replace('+0','')
 
 # Now, instead of training the SOM, we load the SOM we trained:
 som_weights = np.load(f'{output_path}/{som_wide}', allow_pickle=True)
@@ -89,7 +90,7 @@ inds = np.array_split(np.arange(len(fluxes_d)), nsubsets)
 # This function checks whether you have already run that subset, and if not it runs the SOM classifier
 def assign_som(ind):
     print(f'Running rank {rank}, index {ind}')
-    filename = f'{output_path}/{som_type}_{data_type}/som_{som_type}_{som_dim}_{som_dim}_1e7_{run_name}_assign_{data_type}_{rank}_subsample_{ind}.npz'
+    filename = f'{output_path}/{som_type}_{data_type}/som_{som_type}_{som_dim}_{som_dim}_{train_suffix}_{run_name}_assign_{data_type}_{rank}_subsample_{ind}.npz'
     if not os.path.exists(filename):
         print('Running')
         cells_test, _ = som.classify(fluxes_d[inds[ind]], fluxerrs_d[inds[ind]])
