@@ -14,7 +14,7 @@ if len(sys.argv) > 2:
     nproc_balrog_data = sys.argv[2] # number of mpi processes/cores used to run assign script
     nproc_wide_data = sys.argv[2] # number of mpi processes/cores used to run assign script
     nsubsets = sys.argv[2] # should match variable in assign script
-else
+else:
     nproc_balrog_data = 16 
     nproc_wide_data = 16 
     nsubsets = 16 

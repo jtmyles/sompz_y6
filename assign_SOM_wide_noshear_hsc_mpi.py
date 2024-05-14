@@ -107,7 +107,7 @@ inds = np.array_split(np.arange(len(fluxes_d)), nsubsets)
 # This function checks whether you have already run that subset, and if not it runs the SOM classifier
 def assign_som(ind):
     print(f'Running rank {rank}, index {ind}')
-    filename = f'{path_out}/som_wide_{som_dim}_{som_dim}_1e{suffix}_{run_name}_assign_{shear}_{rank}_subsample_{ind}.npz'
+    filename = f'{path_out}/som_wide_{som_dim}_{som_dim}_{train_suffix}_{run_name}_assign_{shear}_{rank}_subsample_{ind}.npz'
     if not os.path.exists(filename):
         print(f'Running to make {filename}')
         cells_test, _ = som.classify(fluxes_d[inds[ind]], fluxerrs_d[inds[ind]])
