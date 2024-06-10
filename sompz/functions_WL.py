@@ -220,3 +220,9 @@ def tomo_bins_wide_2d(tomo_bins_wide_dict):
         renorm = 1. / np.average(tomo_bins_wide[k][:, 1])
         tomo_bins_wide[k][:, 1] *= renorm  # renormalize so the mean weight is 1; important for bin conditioning
     return tomo_bins_wide
+
+def selection_wl_cardinal(mag_i, mag_r, mag_r_limit, size, psf_r=0.9, imag_max=25.1):
+    select_mag_i = mag_i < imag_max
+    #mag_r_limit = depth_map_r # TODO
+    select_mag_r = mag_r < -2.5 * np.log10(0.5) + mag_r_limit
+    select_psf_r = np.sqrt(size**2  + (0.13 * psf_r)**2) > 0.1625 * psf_r

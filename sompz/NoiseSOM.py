@@ -455,8 +455,7 @@ class AsinhMetric:
         cells *= np.power(factor, fractions[:, np.newaxis])
         return
 
-
-class LinearMetric:
+class LinearMetricSimple:
     """
     Metric interface implementation for error-scaled Euclidean distances,
     e.g. Gaussian probabilities.
@@ -486,15 +485,15 @@ class LinearMetric:
         if cells.shape[-1] != features.shape[-1]:
             raise ValueError('Metric cells and features have mismatched no. of features')
         if len(features.shape) == 1:
-            vf = (features / errors).reshape(1, features.shape[0])
-            ee = errors.reshape(1, features.shape[0])
+            vf = (features ).reshape(1, features.shape[0]) # / errors
+            #ee = errors.reshape(1, features.shape[0])
         elif len(features.shape) == 2:
-            vf = features / errors
-            ee = errors
+            vf = features #/ errors
+            #ee = errors
             # vf is S/N of the features, with shape (nTargets,nFeatures)
         else:
             raise ValueError('Metric features has invalid dimensions')
-        vn = cells[:, np.newaxis, :] / ee[np.newaxis, :, :]
+        vn = cells[:, np.newaxis, :] #/ ee[np.newaxis, :, :]
         # And vn is cell S/N with shape (nCells,nTargets, nFeatures)
 
         # Simple Euclidean distance between error-scaled values:
