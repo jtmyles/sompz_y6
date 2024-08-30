@@ -23,8 +23,11 @@ bands_err_label = cfg['deep_bands_err_label']
 
 os.system(f'mkdir -p {output_path}/')
 # Load data
-deep_balrog_data = pickle.load(open(deep_balrog_file, 'rb'), encoding='latin1')
-
+try:
+    deep_balrog_data = pickle.load(open(deep_balrog_file, 'rb'), encoding='latin1')
+except:
+    deep_balrog_data = pd.DataFrame(fitsio.read(deep_balrog_file))
+    
 # Create flux and flux_err vectors
 len_deep = len(deep_balrog_data[bands_label + bands[0]])
 fluxes_d = np.zeros((len_deep, len(bands)))
